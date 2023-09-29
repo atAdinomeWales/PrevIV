@@ -11,11 +11,12 @@ HED = libStdAux.h libSdlInstance.h
 main: $(SRC) $(HED)
 	$(CC) $(CFLAGS) $(LIB_SDL) $(SRC) -o $(NAME)
 
-debug: $(SRC) $(HED)
-	$(CC) $(CFLAGS) $(LIB_SDL) $(DEBUG_FLAGS) $(SRC) -o $(NAME)
+debug: CFLAGS += $(DEBUG_FLAGS)
+debug: main
 
-memdebug: $(SRC) $(HED)
-	$(CC) $(CFLAGS) $(LIB_SDL) $(DEBUG_FLAGS) -g $(SRC) -o $(NAME)
+memdebug: CFLAGS += $(DEBUG_FLAGS) -g
+memdebug: main
+
 
 clean:
 	rm -f $(NAME)

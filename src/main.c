@@ -39,16 +39,17 @@ int main(int argc, char*argv[]){
 
     instanceInit(&instance, WINDOW_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_BACKGROUND_INTENSITY);
 
-    char* imgPath = argvScan(argc, argv);
-    if(imgPath){
-        loadImage(&instance, imgPath);
+    instance.path = argvScan(argc, argv);
+    if(instance.path){
+        loadImage(&instance, instance.path);
         if(!instance.image){
-            DEBUG(debug, "Path: %s not found\n", imgPath);
+            DEBUG(debug, "Path: %s not found\n", instance.path);
         }
     } else {
         loadImage(&instance, IMG_PATH);
     }
-    free(imgPath);
+    free(instance.path);
+    instance.path = NULL;
     
     DEBUG(debug, "Image width: %d, height: %d\n", instance.image->w, instance.image->h);
     int imgH, imgW;
@@ -65,9 +66,8 @@ int main(int argc, char*argv[]){
     int offX = 0;
     int offY = 0;
 
-
     while(!(instance.quit)){
-        while (SDL_PollEvent(&event))
+        if (SDL_WaitEvent(&event))
         {
             switch (event.type){
                 case SDL_QUIT:
@@ -119,7 +119,6 @@ int main(int argc, char*argv[]){
                 updateRender(instance.renderer, instance.texture, NULL, &destRect);
             }
         }
-
     }
 
     instanceQuit(&instance);

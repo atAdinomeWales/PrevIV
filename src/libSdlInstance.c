@@ -46,6 +46,15 @@ void instanceInit(sdlInst *instance, char* name, unsigned int w, unsigned int h,
 void instanceQuit(sdlInst *instance){
     SDL_DestroyWindow(instance->window);
     SDL_DestroyRenderer(instance->renderer);
+    if(instance->image){
+        SDL_FreeSurface(instance->image);
+    }
+    if(instance->texture){
+        SDL_DestroyTexture(instance->texture);
+    }
+    if(instance->path){
+        free(instance->path);
+    }
 }
 
 int loadImage(sdlInst *instance, char* path){

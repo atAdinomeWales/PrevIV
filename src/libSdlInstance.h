@@ -8,6 +8,7 @@ typedef struct {
     SDL_Surface *image;
     SDL_Texture *texture;
     SDL_Renderer *renderer;
+    char* path;
     bool quit;
 } sdlInst;
 
