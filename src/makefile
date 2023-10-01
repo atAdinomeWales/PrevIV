@@ -8,8 +8,14 @@ NAME = PrevIV
 SRC = main.c libStdAux.c libSdlInstance.c
 HED = libStdAux.h libSdlInstance.h
 
-main: $(SRC) $(HED)
-	$(CC) $(CFLAGS) $(LIB_SDL) $(SRC) -o $(NAME)
+SRC_DIR = src
+BUILD_DIR = ../build
+
+main: $(SRC) $(HED) $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(LIB_SDL) $(SRC) -o $(BUILD_DIR)/$(NAME)
+
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
 debug: CFLAGS += $(DEBUG_FLAGS)
 debug: main

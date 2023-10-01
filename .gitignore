@@ -5,4 +5,6 @@
 *.bmp
 !default.*
 
+build/
+
 PrevIV

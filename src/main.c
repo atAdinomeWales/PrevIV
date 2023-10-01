@@ -13,7 +13,9 @@
 #define WINDOW_WIDTH    600
 #define WINDOW_HEIGHT   800
 #define WINDOW_NAME "Preview Image Viewer"
-#define WINDOW_BACKGROUND_INTENSITY 230
+#define WINDOW_BACKGROUND_INTENSITY 50
+#define ZOOM_FACTOR 0.10f
+#define MIN_ZOOM_RESOLUTION 200
 
 
 int main(int argc, char*argv[]){
@@ -55,7 +57,8 @@ int main(int argc, char*argv[]){
     int imgH, imgW;
     imgH = instance.image->h;
     imgW = instance.image->w;
-    loadImageToTexture(&instance, instance.image);
+    loadImageToTexture(&instance, instance.image, false);
+    SDL_RenderPresent(instance.renderer);
 
 
     SDL_Event event;
@@ -65,6 +68,12 @@ int main(int argc, char*argv[]){
     int mouseY = 0;
     int offX = 0;
     int offY = 0;
+    int bigRes;
+    if (imgW > imgH){
+        bigRes = imgW;
+    } else {
+        bigRes = imgH;
+    }
 
     while(!(instance.quit)){
         if (SDL_WaitEvent(&event))
@@ -76,32 +85,23 @@ int main(int argc, char*argv[]){
                 case SDL_MOUSEBUTTONDOWN:
                     if (event.button.button == SDL_BUTTON_LEFT){
                         drag = true;
-                        mouseX = event.button.x;
-                        mouseY = event.button.y;
+                        SDL_GetMouseState(&mouseX, &mouseY);
                     }
                     break;
                 case SDL_MOUSEBUTTONUP:
                     if (drag){
                         drag = false;
+                        SDL_GetMouseState(&mouseX, &mouseY);
                     }
                     break;
                 case SDL_MOUSEWHEEL:
-                    if (event.wheel.y < 0 && zoom > 0.15){
-                        zoom -= 0.15f * zoom;
-                        SDL_Rect destRect;
-                        destRect.h = imgH * zoom;
-                        destRect.w = imgW * zoom;
-                        destRect.x = WINDOW_WIDTH / 2 - destRect.w / 2 + offX;
-                        destRect.y = WINDOW_HEIGHT / 2 - destRect.h / 2 + offY;
-                        updateRender(instance.renderer, instance.texture, NULL, &destRect);
+                    if (event.wheel.y < 0){
+                        float newZoom = zoom - ( ZOOM_FACTOR * zoom );
+                        if( (bigRes * newZoom) > MIN_ZOOM_RESOLUTION){
+                            zoom = newZoom;
+                        }
                     } else if (event.wheel.y > 0){
-                        zoom += 0.15f * zoom;
-                        SDL_Rect destRect;
-                        destRect.h = imgH * zoom;
-                        destRect.w = imgW * zoom;
-                        destRect.x = WINDOW_WIDTH / 2 - destRect.w / 2 + offX;
-                        destRect.y = WINDOW_HEIGHT / 2 - destRect.h / 2 + offY;
-                        updateRender(instance.renderer, instance.texture, NULL, &destRect);
+                        zoom += ZOOM_FACTOR * zoom;
                     }
                     break;
             }
@@ -109,15 +109,13 @@ int main(int argc, char*argv[]){
             if (drag){
                 int newX, newY;
                 SDL_GetMouseState(&newX, &newY);
-                offX = -mouseX + newX;
-                offY = -mouseY + newY;
-                SDL_Rect destRect;
-                destRect.h = imgH * zoom;
-                destRect.w = imgW * zoom;
-                destRect.x = WINDOW_WIDTH / 2 - destRect.w / 2 + offX;
-                destRect.y = WINDOW_HEIGHT / 2 - destRect.h / 2 + offY;
-                updateRender(instance.renderer, instance.texture, NULL, &destRect);
+                offX += newX - mouseX;
+                offY += newY - mouseY;
+                mouseX = newX;
+                mouseY = newY;
             }
+
+            recalcRender(&instance, imgW, imgH, WINDOW_WIDTH, WINDOW_HEIGHT, offX, offY, zoom);
         }
     }
 

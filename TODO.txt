@@ -1,0 +1,27 @@
+For current main:
+- Fix bugs:
+    DONE-Position resets when draging again
+    DONE-Stating zoom level switches abruptly when draged
+- Add:
+    -Aspect ratio of initial window size dependant on image resolution
+    DONE-Max zoom out level varies depening on image resolution
+    -Debug mode dispaly path and resolution on a corner, aswell as X, Y and Zoom levels
+    -Zoom on the axis of the point over which cursor stands
+- Change:
+    -Zoom factor depends on image resolution
+    -Make zooming smooth
+
+
+For new, unrelated branch:
+    -Deploy imgui succesfully
+    -Make a proper file structure
+    -Deploy imgui library
+
+
+For merging of the branches:
+    -Add fetures
+        -Image info
+        -Change image path
+        -File browser pop up, atleast within the the folder.
+    -Leave main with only app specific code, so that a general purpose library can be extracted
+     and reused in future projects
