@@ -3,6 +3,8 @@
 
 #include <SDL2/SDL.h>
 
+#define CHK_W_SIZE 0
+
 typedef struct {
     SDL_Window *window;
     float windowAspect;
@@ -19,6 +21,6 @@ void instanceQuit(sdlInst *instance);
 int  loadImage(sdlInst *instance, char* path);
 void loadImageToTexture(sdlInst *instance, SDL_Surface *image, bool destroyImage);
 void updateRender(SDL_Renderer *renderer, SDL_Texture *texture, SDL_Rect *source, SDL_Rect *dest);
-void recalcRender(sdlInst* instance, uint16_t imgW, uint16_t imgH, uint16_t winW, uint16_t winH, int offX, int offY, float zoom);
+void recalcRender(sdlInst* instance, uint16_t imgW, uint16_t imgH, int winW, int winH, int offX, int offY, float zoom);
 
 #endif//LIB_SDL_INSTANCE_H

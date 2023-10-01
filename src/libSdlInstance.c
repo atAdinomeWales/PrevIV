@@ -5,10 +5,8 @@
 #include "libSdlInstance.h"
 #include "libStdAux.h"
 
-#define Uint8 unsigned char
 
-
-void instanceInit(sdlInst *instance, char* name, unsigned int w, unsigned int h, Uint8 intensity){
+void instanceInit(sdlInst *instance, char* name, unsigned int w, unsigned int h, uint8_t intensity){
     // Init window
     instance->window = SDL_CreateWindow(
         name,
@@ -114,8 +112,12 @@ void updateRender(SDL_Renderer *renderer, SDL_Texture *texture, SDL_Rect *source
     SDL_RenderPresent(renderer);
 }
 
-void recalcRender(sdlInst* instance, uint16_t imgW, uint16_t imgH, uint16_t winW, uint16_t winH, int offX, int offY, float zoom){
+void recalcRender(sdlInst* instance, uint16_t imgW, uint16_t imgH, int winW, int winH, int offX, int offY, float zoom){
     SDL_Rect destRect;
+    if(winW == CHK_W_SIZE || winH == CHK_W_SIZE){
+        SDL_GetWindowSize(instance->window, &winW, &winH);
+    }
+
     if(instance->imageAspect > instance->windowAspect){
         //image wider than window
         destRect.w = winW * zoom;

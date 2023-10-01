@@ -99,9 +99,25 @@ int main(int argc, char*argv[]){
                         float newZoom = zoom - ( ZOOM_FACTOR * zoom );
                         if( (bigRes * newZoom) > MIN_ZOOM_RESOLUTION){
                             zoom = newZoom;
+                            recalcRender(&instance, imgW, imgH, CHK_W_SIZE, CHK_W_SIZE, 0, 0, zoom);
                         }
                     } else if (event.wheel.y > 0){
                         zoom += ZOOM_FACTOR * zoom;
+                        recalcRender(&instance, imgW, imgH, CHK_W_SIZE, CHK_W_SIZE, 0, 0, zoom);
+                    }
+                    break;
+                case SDL_KEYDOWN:
+                    switch(event.key.keysym.sym){
+                            int mXp, mYp;
+                            int winW, winH;
+                        case SDLK_c:
+                            SDL_GetMouseState(&mXp, &mYp);
+                            SDL_GetWindowSize(instance.window, &winW, &winH);
+                            recalcRender(&instance, imgW, imgH, winW, winH, mXp - winW / 2, mYp - winH / 2, zoom);
+                            break;
+                        case SDLK_m:
+                            SDL_GetWindowSize(instance.window, &winW, &winH);
+                            recalcRender(&instance, imgW, imgH, winW, winH, 0, 0, 1);
                     }
                     break;
             }
@@ -113,9 +129,8 @@ int main(int argc, char*argv[]){
                 offY += newY - mouseY;
                 mouseX = newX;
                 mouseY = newY;
+                recalcRender(&instance, imgW, imgH, CHK_W_SIZE, CHK_W_SIZE, offX, offY, zoom);
             }
-
-            recalcRender(&instance, imgW, imgH, WINDOW_WIDTH, WINDOW_HEIGHT, offX, offY, zoom);
         }
     }
 
