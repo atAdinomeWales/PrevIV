@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -O2 -Wall
-LIB_SDL = -lSDL2 -lSDL2_image
+LIB_SDL = -lSDL2 -lSDL2_image $(LIB_DIR)/ImGuiLib.a
 DEBUG_FLAGS = -DDEFAULT_DEBUG_STATUS=true 
 
 NAME = PrevIV
@@ -9,7 +9,8 @@ SRC = main.c libStdAux.c libSdlInstance.c
 HED = libStdAux.h libSdlInstance.h
 
 SRC_DIR = src
-BUILD_DIR = ../build
+LIB_DIR = ../libs
+BUILD_DIR = .#./build
 
 $(NAME): $(SRC) $(HED) $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(LIB_SDL) $(SRC) -o $(BUILD_DIR)/$(NAME)
