@@ -23,11 +23,11 @@ typedef struct {
 
 void instanceInit(sdlInst *instance, char* name, unsigned int w, unsigned int h, Uint8 intensity);
 void instanceQuit(sdlInst *instance);
-int  loadImage(sdlInst *instance, char* path);
+int  loadImage(sdlInst *instance, char* path, bool windowNameUpdate);
 void loadImageToTexture(sdlInst *instance, SDL_Surface *image, bool destroyImage);
 void updateRender(SDL_Renderer *renderer, SDL_Texture *texture, SDL_Rect *source, SDL_Rect *dest);
 void recalcRender(sdlInst* instance, uint16_t imgW, uint16_t imgH, int offX, int offY, float zoom);
-void zoomRecalc(float input, int refResolution, float *currZoom, int *offX, int *offY,sdlInst *instance);
+void zoomRecalc(float input, float *currZoom, int *offX, int *offY,sdlInst *instance);
 void onMouseRecalc(sdlInst* instance, float *zoom, int *offX, int *offY);
 void moveRecalc(bool drag, sdlInst* instance, int *offX, int *offY, int *prevMouseX, int *prevMouseY, float *currZoom);
 

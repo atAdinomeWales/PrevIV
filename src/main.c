@@ -25,9 +25,8 @@ int main(int argc, char*argv[]){
         debug = DEFAULT_DEBUG_STATUS;
     }
 
-    //TODO Window name depends on file name
     instance.path = argvScan(argc, argv);
-    
+
     ASSERT(
         !(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)), 
         "Failed to initialize, error thrown: %s\n", 
@@ -43,12 +42,12 @@ int main(int argc, char*argv[]){
     instanceInit(&instance, WINDOW_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_BACKGROUND_INTENSITY);
 
     if(instance.path){
-        loadImage(&instance, instance.path);
+        loadImage(&instance, instance.path, true);
         if(!instance.image){
             DEBUG(debug, "Path: %s not found\n", instance.path);
         }
     } else {
-        loadImage(&instance, IMG_PATH);
+        loadImage(&instance, IMG_PATH, false);
     }
     instance.path = NULL;
     
@@ -84,8 +83,7 @@ int main(int argc, char*argv[]){
                     SDL_GetMouseState(&mouseX, &mouseY);
                     break;
                 case SDL_MOUSEWHEEL:
-                    //TODO reference resolution should accsesed through instance
-                    zoomRecalc(-event.wheel.y, instance.bigRes, &zoom, &offX, &offY, &instance);
+                    zoomRecalc(-event.wheel.y, &zoom, &offX, &offY, &instance);
                     break;
                 case SDL_KEYDOWN:
                     switch(event.key.keysym.sym){
@@ -99,10 +97,10 @@ int main(int argc, char*argv[]){
                             recalcRender(&instance, instance.imgW, instance.imgH, 0, 0, 1);
                             break;
                         case SDLK_p:
-                            zoomRecalc(1, instance.bigRes, &zoom, &offX, &offY, &instance);
+                            zoomRecalc(1,  &zoom, &offX, &offY, &instance);
                             break;
                         case SDLK_l:
-                            zoomRecalc(-1, instance.bigRes, &zoom, &offX, &offY, &instance);
+                            zoomRecalc(-1, &zoom, &offX, &offY, &instance);
                             break;
                     }
                     break;

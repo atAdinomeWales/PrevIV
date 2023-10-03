@@ -56,7 +56,11 @@ void instanceQuit(sdlInst *instance){
     }
 }
 
-int loadImage(sdlInst *instance, char* path){
+int loadImage(sdlInst *instance, char* path, bool windowNameUpdate){
+    if(!path){
+        return 0;
+    }
+
     instance->image = IMG_Load(path);
     ASSERT(
         instance->image,
@@ -66,6 +70,13 @@ int loadImage(sdlInst *instance, char* path){
     if (instance->image == NULL){
         printf("Could not locate image, likely due to an invalid path\n");
         return 0;
+    }
+
+    if(windowNameUpdate){
+        char* name = getFileName(path, false);
+        if(name){
+            SDL_SetWindowTitle(instance->window, name);
+        }
     }
 
     instance->imgW = instance->image->w;
@@ -139,8 +150,9 @@ void recalcRender(sdlInst* instance, uint16_t imgW, uint16_t imgH, int offX, int
     updateRender(instance->renderer, instance->texture, NULL, &destRect);
 }
 
-void zoomRecalc(float input, int refResolution, float *currZoom, int *offX, int *offY, sdlInst *instance){
+void zoomRecalc(float input, float *currZoom, int *offX, int *offY, sdlInst *instance){
     int imgW, imgH;
+    int refResolution = instance->bigRes;
     if(instance->image->w && instance->image->h){
         imgW = instance->image->w;
         imgH = instance->image->h;
