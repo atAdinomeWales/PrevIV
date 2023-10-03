@@ -11,19 +11,19 @@ HED = libStdAux.h libSdlInstance.h
 SRC_DIR = src
 BUILD_DIR = ../build
 
-main: $(SRC) $(HED) $(BUILD_DIR)
+$(NAME): $(SRC) $(HED) $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(LIB_SDL) $(SRC) -o $(BUILD_DIR)/$(NAME)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 debug: CFLAGS += $(DEBUG_FLAGS)
-debug: main
+debug: $(NAME)
 
 memdebug: CFLAGS += $(DEBUG_FLAGS) -g
-memdebug: main
+memdebug: $(NAME)
 
 
 clean:
-	rm -f $(NAME)
+	rm -f $(BUILD_DIR)/$(NAME)
 	@echo "Done cleaning!"

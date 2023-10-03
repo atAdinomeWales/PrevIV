@@ -1,6 +1,8 @@
 #ifndef SRCLIB_H
 #define SRCLIB_H
 
+#include <stdint.h>
+
 #ifndef DEFAULT_DEBUG_STATUS 
 #define DEFAULT_DEBUG_STATUS false
 #endif
@@ -25,8 +27,8 @@ char* argvScan(int argc, char** argv);
 int argvFind(int argc, char** argv, char* str);
 
 //If found returns 1 otherwise 0
-int fileCheck(char* path, bool debug);
+int fileCheck(char* path, int8_t debug);
 
-char* getFileName(char* path, bool debug);
+char* getFileName(char* path, int8_t debug);
 
 #endif//SRCLIB_H

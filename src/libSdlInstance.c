@@ -68,6 +68,13 @@ int loadImage(sdlInst *instance, char* path){
         return 0;
     }
 
+    instance->imgW = instance->image->w;
+    instance->imgH = instance->image->h;
+    if (instance->imgW > instance->imgH){
+        instance->bigRes = instance->imgW;
+    } else {
+        instance->bigRes = instance->imgH;
+    }
     instance->imageAspect = (float)instance->image->w / (float)instance->image->h;
 
     return 1;
@@ -112,11 +119,10 @@ void updateRender(SDL_Renderer *renderer, SDL_Texture *texture, SDL_Rect *source
     SDL_RenderPresent(renderer);
 }
 
-void recalcRender(sdlInst* instance, uint16_t imgW, uint16_t imgH, int winW, int winH, int offX, int offY, float zoom){
+void recalcRender(sdlInst* instance, uint16_t imgW, uint16_t imgH, int offX, int offY, float zoom){
     SDL_Rect destRect;
-    if(winW == CHK_W_SIZE || winH == CHK_W_SIZE){
-        SDL_GetWindowSize(instance->window, &winW, &winH);
-    }
+    int winW, winH;
+    SDL_GetWindowSize(instance->window, &winW, &winH);
 
     if(instance->imageAspect > instance->windowAspect){
         //image wider than window
@@ -131,4 +137,72 @@ void recalcRender(sdlInst* instance, uint16_t imgW, uint16_t imgH, int winW, int
     destRect.x = winW / 2 - destRect.w / 2 + offX;
     destRect.y = winH / 2 - destRect.h / 2 + offY;
     updateRender(instance->renderer, instance->texture, NULL, &destRect);
+}
+
+void zoomRecalc(float input, int refResolution, float *currZoom, int *offX, int *offY, sdlInst *instance){
+    int imgW, imgH;
+    if(instance->image->w && instance->image->h){
+        imgW = instance->image->w;
+        imgH = instance->image->h;
+    } else {
+        SDL_GetWindowSize(instance->window, &imgW, &imgH);
+    }
+
+    *offX = 0;
+    *offY = 0;
+
+    if (input < 0){
+        float newZoom = *currZoom - ( ZOOM_FACTOR * *currZoom );
+        if( (refResolution * newZoom) > MIN_ZOOM_RESOLUTION){
+            *currZoom = newZoom;
+            recalcRender(instance, imgW, imgH, 0, 0, *currZoom);
+        }
+    } else if (input > 0){
+        *currZoom += (ZOOM_FACTOR * *currZoom);
+        recalcRender(instance, imgW, imgH, 0, 0, *currZoom);
+    }
+}
+
+void onMouseRecalc(sdlInst* instance, float *currZoom, int *offX, int *offY){
+    int mXp, mYp;
+    int winW, winH;
+    SDL_GetMouseState(&mXp, &mYp);
+    SDL_GetWindowSize(instance->window, &winW, &winH);
+    *offX = mXp - winW / 2;
+    *offY = mYp - winH / 2;
+
+    SDL_Rect destRect;
+
+    if(instance->imageAspect > instance->windowAspect){
+        //image wider than window
+        destRect.w = winW * *currZoom;
+        destRect.h = (int)(winW / instance->imageAspect) * *currZoom;
+    } else {
+        //image taller than window
+        destRect.h = winH * *currZoom;
+        destRect.w = (int)(winH * instance->imageAspect) * *currZoom;
+    }
+
+    destRect.x = winW / 2 - destRect.w / 2 + *offX;
+    destRect.y = winH / 2 - destRect.h / 2 + *offY;
+    updateRender(instance->renderer, instance->texture, NULL, &destRect);
+
+    return;
+}
+
+void moveRecalc(bool condition, sdlInst* instance, int *offX, int *offY, int *prevMouseX, int *prevMouseY, float *currZoom){
+    if(!condition){
+        return;
+    }
+
+    int newX, newY;
+    SDL_GetMouseState(&newX, &newY);
+
+    *offX += newX - *prevMouseX;
+    *offY += newY - *prevMouseY;
+    *prevMouseX = newX;
+    *prevMouseY = newY;
+    recalcRender(instance, instance->imgW, instance->imgH, *offX, *offY, *currZoom);
+
+    return;
 }

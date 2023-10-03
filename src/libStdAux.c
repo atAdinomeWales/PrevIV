@@ -54,7 +54,7 @@ int argvFind(int argc, char** argv, char* str){
     return -2;
 }
 
-int fileCheck(char* path, bool debug){
+int fileCheck(char* path, int8_t debug){
     if(!path){
         DEBUG(debug, "No path provided\n");
         return NO_PATH_PROVIDED;
@@ -69,7 +69,7 @@ int fileCheck(char* path, bool debug){
     return FILE_NOT_FOUND;
 }
 
-char* getFileName(char* path, bool debug){
+char* getFileName(char* path, int8_t debug){
     if(!path){
         return "err";
     }

@@ -14,8 +14,6 @@
 #define WINDOW_HEIGHT   800
 #define WINDOW_NAME "Preview Image Viewer"
 #define WINDOW_BACKGROUND_INTENSITY 50
-#define ZOOM_FACTOR 0.10f
-#define MIN_ZOOM_RESOLUTION 200
 
 
 int main(int argc, char*argv[]){
@@ -27,6 +25,9 @@ int main(int argc, char*argv[]){
         debug = DEFAULT_DEBUG_STATUS;
     }
 
+    //TODO Window name depends on file name
+    instance.path = argvScan(argc, argv);
+    
     ASSERT(
         !(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)), 
         "Failed to initialize, error thrown: %s\n", 
@@ -41,7 +42,6 @@ int main(int argc, char*argv[]){
 
     instanceInit(&instance, WINDOW_NAME, WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_BACKGROUND_INTENSITY);
 
-    instance.path = argvScan(argc, argv);
     if(instance.path){
         loadImage(&instance, instance.path);
         if(!instance.image){
@@ -50,13 +50,10 @@ int main(int argc, char*argv[]){
     } else {
         loadImage(&instance, IMG_PATH);
     }
-    free(instance.path);
     instance.path = NULL;
     
-    DEBUG(debug, "Image width: %d, height: %d\n", instance.image->w, instance.image->h);
-    int imgH, imgW;
-    imgH = instance.image->h;
-    imgW = instance.image->w;
+    DEBUG(debug, "Image width: %d, height: %d\n", instance.imgW, instance.imgH);
+
     loadImageToTexture(&instance, instance.image, false);
     SDL_RenderPresent(instance.renderer);
 
@@ -68,12 +65,6 @@ int main(int argc, char*argv[]){
     int mouseY = 0;
     int offX = 0;
     int offY = 0;
-    int bigRes;
-    if (imgW > imgH){
-        bigRes = imgW;
-    } else {
-        bigRes = imgH;
-    }
 
     while(!(instance.quit)){
         if (SDL_WaitEvent(&event))
@@ -89,48 +80,35 @@ int main(int argc, char*argv[]){
                     }
                     break;
                 case SDL_MOUSEBUTTONUP:
-                    if (drag){
-                        drag = false;
-                        SDL_GetMouseState(&mouseX, &mouseY);
-                    }
+                    drag = false;
+                    SDL_GetMouseState(&mouseX, &mouseY);
                     break;
                 case SDL_MOUSEWHEEL:
-                    if (event.wheel.y < 0){
-                        float newZoom = zoom - ( ZOOM_FACTOR * zoom );
-                        if( (bigRes * newZoom) > MIN_ZOOM_RESOLUTION){
-                            zoom = newZoom;
-                            recalcRender(&instance, imgW, imgH, CHK_W_SIZE, CHK_W_SIZE, 0, 0, zoom);
-                        }
-                    } else if (event.wheel.y > 0){
-                        zoom += ZOOM_FACTOR * zoom;
-                        recalcRender(&instance, imgW, imgH, CHK_W_SIZE, CHK_W_SIZE, 0, 0, zoom);
-                    }
+                    //TODO reference resolution should accsesed through instance
+                    zoomRecalc(-event.wheel.y, instance.bigRes, &zoom, &offX, &offY, &instance);
                     break;
                 case SDL_KEYDOWN:
                     switch(event.key.keysym.sym){
-                            int mXp, mYp;
-                            int winW, winH;
                         case SDLK_c:
-                            SDL_GetMouseState(&mXp, &mYp);
-                            SDL_GetWindowSize(instance.window, &winW, &winH);
-                            recalcRender(&instance, imgW, imgH, winW, winH, mXp - winW / 2, mYp - winH / 2, zoom);
+                            onMouseRecalc(&instance, &zoom, &offX, &offY);
                             break;
                         case SDLK_m:
-                            SDL_GetWindowSize(instance.window, &winW, &winH);
-                            recalcRender(&instance, imgW, imgH, winW, winH, 0, 0, 1);
+                            offX = 0;
+                            offY = 0;
+                            zoom = 1;
+                            recalcRender(&instance, instance.imgW, instance.imgH, 0, 0, 1);
+                            break;
+                        case SDLK_p:
+                            zoomRecalc(1, instance.bigRes, &zoom, &offX, &offY, &instance);
+                            break;
+                        case SDLK_l:
+                            zoomRecalc(-1, instance.bigRes, &zoom, &offX, &offY, &instance);
+                            break;
                     }
                     break;
             }
 
-            if (drag){
-                int newX, newY;
-                SDL_GetMouseState(&newX, &newY);
-                offX += newX - mouseX;
-                offY += newY - mouseY;
-                mouseX = newX;
-                mouseY = newY;
-                recalcRender(&instance, imgW, imgH, CHK_W_SIZE, CHK_W_SIZE, offX, offY, zoom);
-            }
+            moveRecalc(drag, &instance, &offX, &offY, &mouseX, &mouseY, &zoom);
         }
     }
 
